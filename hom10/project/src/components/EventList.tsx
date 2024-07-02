@@ -1,5 +1,7 @@
-import { useContext } from "react"
-import { EventContext } from "../lib/Context"
+import { useContext, useState } from "react";
+import { EventContext } from "../lib/Context";
+import { IEvent } from "../lib/types";
+import { CopyModal } from "./CopyModal";
 
 export const EventList: React.FC = () => {
 
@@ -9,6 +11,7 @@ export const EventList: React.FC = () => {
     }
 
     const { state } = context;
+    const [selectedEvent, setSelectedEvent] = useState<IEvent | undefined>(undefined);
 
     return <>
         <h1>Event List</h1>
@@ -19,8 +22,10 @@ export const EventList: React.FC = () => {
                     <p>{event.title}</p>
                     <small>{event.type} by <strong>{event.composer}</strong></small>
                     <p>{event.date} at {event.time}</p>
+                    <button onClick={() => setSelectedEvent(event)}>Copy</button>
                 </div>)
             }
         </div>
+        {selectedEvent && <CopyModal event={selectedEvent} onClose={() => setSelectedEvent(undefined)} />}
     </>
 }

@@ -1,9 +1,10 @@
 import { Box, Button, MenuItem, Modal, Select, TextField } from "@mui/material";
 import axios from "axios";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { ActionTypes } from "../lib/types";
 import { EventContext } from "../lib/Context";
+import { CopyModalProps } from "../lib/types";
 
 const style = {
     position: 'absolute',
@@ -18,6 +19,7 @@ const style = {
 };
 
 interface Inputs {
+    id: string,
     title: string
     date: string
     time: string
@@ -26,41 +28,36 @@ interface Inputs {
     composer: string
 }
 
-export const AddEvent = () => {
+export const CopyModal: React.FC<CopyModalProps> = ({ event, onClose }) => {
 
-    const [open, setOpen] = useState<boolean>(false);
+    const { register, handleSubmit, formState: { errors }, reset } = useForm<Inputs>({
+        defaultValues: event
+    });
 
     const context = useContext(EventContext);
-
     if (!context) {
         throw new Error("Out of provider...");
     }
-    
+
     const { dispatch } = context;
 
-    const { register, handleSubmit, formState: { errors }, reset } = useForm<Inputs>()
-
-    const handleAdd: SubmitHandler<Inputs> = (data) => {
+    const handleCopy: SubmitHandler<Inputs> = (data) => {
+        const { id, ...eventData } = data;
         axios
-            .post("http://localhost:3004/events", data)
+            .post("http://localhost:3004/events", eventData)
             .then(res => {
                 dispatch({ type: ActionTypes.addEvent, payload: res.data });
-                setOpen(false);
+                onClose();
                 reset();
             });
     }
 
     return <Box my={2}>
-        <Button onClick={() => setOpen(true)} variant="contained">add</Button>
-        <Modal open={open} onClose={() => setOpen(false)}>
+        <Modal open={true} onClose={onClose}>
             <Box sx={style}>
-                <form onSubmit={handleSubmit(handleAdd)}>
+                <form onSubmit={handleSubmit(handleCopy)}>
                     <Box my={2}>
-                        {
-                            errors.title && <p style={{ color: "red" }}>
-                                Please fill the title
-                            </p>
-                        }
+                        {errors.title && <p style={{ color: "red" }}>Please fill the title</p>}
                         <TextField
                             variant="outlined"
                             label="title"
@@ -68,11 +65,7 @@ export const AddEvent = () => {
                         />
                     </Box>
                     <Box my={2}>
-                        {
-                            errors.date && <p style={{ color: "red" }}>
-                                Please fill the date
-                            </p>
-                        }
+                        {errors.date && <p style={{ color: "red" }}>Please fill the date</p>}
                         <TextField
                             variant="outlined"
                             label="date"
@@ -80,11 +73,7 @@ export const AddEvent = () => {
                         />
                     </Box>
                     <Box my={2}>
-                        {
-                            errors.time && <p style={{ color: "red" }}>
-                                Please fill the time
-                            </p>
-                        }
+                        {errors.time && <p style={{ color: "red" }}>Please fill the time</p>}
                         <TextField
                             variant="outlined"
                             label="time"
@@ -92,11 +81,7 @@ export const AddEvent = () => {
                         />
                     </Box>
                     <Box my={2}>
-                        {
-                            errors.composer && <p style={{ color: "red" }}>
-                                Please fill the composer
-                            </p>
-                        }
+                        {errors.composer && <p style={{ color: "red" }}>Please fill the composer</p>}
                         <TextField
                             variant="outlined"
                             label="composer"
@@ -104,29 +89,21 @@ export const AddEvent = () => {
                         />
                     </Box>
                     <Box my={2}>
-                        {
-                            errors.type && <p style={{ color: "red" }}>
-                                Please choose opera or ballet
-                            </p>
-                        }
+                        {errors.type && <p style={{ color: "red" }}>Please choose opera or ballet</p>}
                         <Select sx={{ width: 200 }} {...register("type", { required: true })}>
                             <MenuItem value="opera">opera</MenuItem>
                             <MenuItem value="ballet">ballet</MenuItem>
                         </Select>
                     </Box>
                     <Box my={2}>
-                        {
-                            errors.cover && <p style={{ color: "red" }}>
-                                Please fill the cover
-                            </p>
-                        }
+                        {errors.cover && <p style={{ color: "red" }}>Please fill the cover</p>}
                         <TextField
                             variant="outlined"
                             {...register("cover", { required: true })}
                             label="cover"
                         />
                     </Box>
-                    <Button type="submit" variant="outlined"> submit</Button>
+                    <Button type="submit" variant="outlined">Save</Button>
                 </form>
             </Box>
         </Modal>

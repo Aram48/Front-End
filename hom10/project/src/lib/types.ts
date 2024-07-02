@@ -25,13 +25,18 @@ export interface IState {
 export enum ActionTypes {
     setEvents,
     addEvent,
-    setFilter
+    setFilter,
 }
 export interface IAction {
     type: ActionTypes,
-    payload: unknown
+    payload: unknown,
 }
 export interface IContextType {
     state: IState,
-    dispatch: Dispatch<IAction>
+    dispatch: Dispatch<IAction>,
+}
+
+export interface CopyModalProps {
+    event: IEvent,
+    onClose: () => void,
 }
